@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<!-- Y-axis: price
+X-axis: room types
+
+Filter by:
+- # of people
+- # average rating -->
+
+<meta charset="utf-8">
+<head>
+<style>
+
+.rectangle {
+	/*fill: #83B39D;*/
+    /*fill: #9EC28F;*/
+    fill: green
+}
+/*.rectangle:hover {
+	fill: green;
+}*/
+.label {
+  font: 15px helvetica;
+}
+
+.axis text {
+    font: 18px helvetica;
+}
+
+.path {
+    fill: steelblue;
+    stroke: steelblue;
+}
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 150px;
+  height: 25px;
+  padding: 2px;
+  font-size: 10px;
+  background: lightsteelblue;
+  border: 1px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+<!-- <div id="drop" align=center></div> -->
+<script src="../assets/js/d3.min.js"></script>
+<script>
+
+var margin = {top: 80, right: 0, bottom: 200, left: 180},
+    width = 450 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+var drop = d3.select("body")
+    .append("div")
+    .attr("id", "drop")
+    .attr("align", "center");
+
+var svg = d3.select("body").append("svg")
+	.attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+	.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var tooltipDiv = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+
+var neighborhoodSelected = "el Poble Sec";
+var ratingSelected = 1;
+
+var presentGraph = function(neighborhood, rating) {
+    console.log(neighborhood);
+
+    d3.csv("../data/listings-min.csv", function(error, data){
+    console.log("Data length: " + data.length);
+
+    var roomCounts = [];
+    var MAX;
+
+    var computePrices = function(neighborhood, rating) {
+
+        console.log("Rating is: " + rating);
+        filtered = data.filter(function(d){
+            return d.neighbourhood_cleansed == neighborhood && (d.review_scores_rating / 20) >= rating;
+        });
+        //MAX = d3.max(filtered, function(d) { return parseInt(d.price.replace(/\$/g, '')); });
+        //console.log("ALL MAX IS: " + MAX);
+        console.log("FILTERED LENGTH: " + filtered.length);
+        var privateRooms = filtered.filter(function(d) { return d.room_type == "Private room"; });
+        //console.log("Private rooms: " + privateRooms.length);
+        var privatePrice = d3.mean(privateRooms, function(d) { return parseInt(d.price.replace(/\$/g, '')); });
+        console.log("Private Price: " + privatePrice);
+
+        var sharedRooms = filtered.filter(function(d) { return d.room_type == "Shared room"; });
+        //console.log("Shared: " + sharedRooms.length);
+        var sharedPrice = d3.mean(sharedRooms, function(d) { return parseInt(d.price.replace(/\$/g, '')); });
+        console.log("Shared Price: " + sharedPrice);
+
+        var fullHouse = filtered.filter(function(d) { return d.room_type == "Entire home/apt"; });
+        //console.log("Entire home: " + fullHouse.length);
+        var fullPrice = d3.mean(fullHouse, function(d) { return parseInt(d.price.replace(/\$/g, '')); });
+        console.log("Full Price: " + fullPrice);
+
+        roomCounts = [privateRooms.length, sharedRooms.length, fullHouse.length];
+        return [privatePrice, sharedPrice, fullPrice];
+    }
+
+    var priceNames = ["Private Room", "Shared Room", "Entire House"];
+
+    var prices = computePrices(neighborhoodSelected, ratingSelected);
+
+	var elements = [1, 2, 3, 4, 5];
+
+	var y = d3.scaleLinear()
+			.domain([0, d3.max(prices, function(d){
+				return +d;
+			})])
+            //.domain([0, MAX])
+			.range([height, 0]);
+
+	var x = d3.scaleBand()
+            .range([0, width])
+            .domain(priceNames.map(function(d) { return d; }));
+
+    var xAxis = svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .attr("font-size", "30")
+        .call(d3.axisBottom(x));
+
+    d3.selectAll("text")
+        //.attr("font-size", width / 55)
+        //.attr("dy", 15)
+        .attr("y", 0)
+        .attr("x", -70)
+        .attr("dy", ".35em")
+        .attr("transform", "rotate(-90)")
+        .attr("fill", "#353F39")
+        .attr("font-size", "18")
+        .style("text-anchor", "finish");
+
+    d3.selectAll("path")
+        .attr("stroke", "white");
+
+
+	// var yAxis = svg.append("g")
+    //       .call(d3.axisLeft(y));
+
+
+	// svg.append("g")
+    // 	.attr("class", "x axis")
+    // 	.attr("transform", "translate(0," + height + ")")
+    // 	.call(xAxis)
+    // 	.selectAll("text")
+    // 	.style("font-size", "8px")
+    //   	.style("text-anchor", "end")
+    //   	.attr("dx", "-.8em")
+    //   	.attr("dy", "-.55em")
+    //   	.attr("transform", "rotate(-90)" );
+
+
+ // 	svg.append("g")
+    // 	.attr("class", "y axis")
+    // 	.call(yAxis);
+
+	svg.selectAll("rectangle")
+		.data(prices)
+		.enter()
+		.append("rect")
+		.attr("class","rectangle")
+        .attr("rx", 5)
+		.attr("width", width/ (1.5 * prices.length))
+        //.attr("rx", "5, 5, 0, 0")
+		.attr("height", function(d){
+			return height - y(+d);
+		})
+		.attr("x", function(d, i){
+			return (width / prices.length) * i + (0.16 * width / prices.length);
+		})
+		.attr("y", function(d){
+			return y(+d);
+		})
+        .style("opacity", 0.7)
+        //Adding mouseevents
+        .on("mouseover", function(d, i) {
+              d3.select(this).transition().duration(250).style("opacity", 1)
+              tooltipDiv.transition().duration(250)
+              .style("opacity", 1);
+              var coordinates = d3.mouse(this);
+              console.log(coordinates[0] + ", " + coordinates[1]);
+              tooltipDiv.text(roomCounts[i] + " Rooms")     //Add tooltip
+              .style("left", coordinates[0] + 100 + "px") //(d3.event.pageX) + "px")
+              .style("top", coordinates[1] + "px") //(d3.event.pageY / 3) - 30 + "px");
+
+        })
+        .on("mouseout", function() {
+              d3.select(this)
+              .transition().duration(250)
+              .style("opacity", 0.7);
+              tooltipDiv.transition().duration(250)
+              .style("opacity", 0);
+          });
+		// .append("title")
+		// .text(function(d, i){
+		// 	return priceNames[i];
+		// })
+        // .attr("size", "40px");
+
+    //Add bar labels
+    svg.selectAll(".text")
+  	   .data(prices)
+  	   .enter()
+  	   .append("text")
+  	   .attr("class","label")
+  	   .attr("x", (function(d, i) { return (width / prices.length) * i + (0.16 * width / prices.length) + width/ (3 * prices.length) - 15; }  ))
+  	   .attr("y", function(d) { return y(d) + 10; })
+  	   .attr("dy", ".75em")
+       .attr("fill", "white")
+       //.attr("fill", function(d) { return labelColorPicker(d); })
+  	   .text(function(d) { return "$" + parseInt(d) });
+
+	var selector = d3.select("#drop")
+    	.append("select")
+    	.attr("id","dropdown")
+    	.on("change", function(d){
+
+            console.log("------------------------------------------------------------------------------");
+            ratingSelected = parseInt(document.getElementById("dropdown").value);
+
+            prices = computePrices(neighborhoodSelected, ratingSelected);
+        	y.domain([0, d3.max(prices, function(d){ return +d;})]);
+
+            // y = d3.scaleLinear()
+        	// 		.domain([0, d3.max(prices, function(d){ return +d; })])
+        	// 		.range([height, 0]);
+            console.log("Max y: " + d3.max(prices, function(d) { return +d }));
+
+        	//d3.selectAll(".rectangle")
+            svg.selectAll(".rectangle")
+                //.data(prices)
+                //.enter()
+           		.transition()
+        		.attr("height", function(d, i){
+                    var pr = prices[i];
+        			return height - y(+pr);
+        		})
+        		.attr("x", function(d, i){
+        			return (width / prices.length) * i + (0.16 * width / prices.length);
+        		})
+        		.attr("y", function(d, i){
+                    var pr = prices[i];
+                    console.log("d" + i + " is: " + pr);
+                    console.log("New y:" + (height - y(+pr)));
+                    console.log("Height:" + height);
+                    console.log("y + pr: " + y(+pr));
+        			return y(+pr);
+        		})
+           		.ease(d3.easeLinear);
+
+            svg.selectAll(".label")
+                .transition()
+                .attr("y", function(d, i) {
+                    var pr = prices[i];
+                    return y(+pr) + 15;
+                })
+                .text(function(d, i) { return "$" + parseInt(prices[i]) })
+                .ease(d3.easeLinear);
+
+        });
+
+    selector.selectAll("option")
+      .data(elements)
+      .enter().append("option")
+      .attr("value", function(d){
+        return d;
+      })
+      .text(function(d){
+        return d;
+      })
+
+
+});
+
+}
+//Actually call the presentGraph function to populate the graph
+presentGraph(neighborhoodSelected, ratingSelected);
+
+</script>
+</body>

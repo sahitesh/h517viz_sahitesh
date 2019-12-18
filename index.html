@@ -1,0 +1,877 @@
+<!DOCTYPE HTML>
+<!--
+
+    d3 Information Visualization by Sahitesh Reddypelly, Himabindu Srinivas, Enrico Banks
+
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+
+-->
+
+<html>
+	<head>
+		<title>Airbnb Visualization</title>
+        <meta charset="utf-8" />
+        
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+        <link rel="stylesheet" href="assets/css/main.css" />
+        
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+	</head>
+	<body>
+
+        <!-- Provide the source code for the d3 library -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        
+        <script>
+            function openCity(evt, cityName) {
+                // Declare all variables
+                var i, tabcontent, tablinks;
+
+                // Get all elements with class="tabcontent" and hide them
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+
+                // Get all elements with class="tablinks" and remove the class "active"
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+
+                // Show the current tab, and add an "active" class to the button that opened the tab
+                document.getElementById(cityName).style.display = "block";
+                evt.currentTarget.className += " active";
+                }
+        </script>
+
+        <!-- Two -->
+
+        
+        <!-- Tab content -->
+        
+                <!-- Header -->
+                <section id="header">
+                    <div class="inner">
+                        <span class="image"><img src="images/airbnbWhiteSmall.png" alt="Airbnb" /></span>
+                        <h1><strong>Visualization and Analysis for NYC's Airbnb Listings</strong><br /></h1>
+                        <h2>H517 Visualization Design, Analysis &amp; Evaluation  </h2>
+                        <h3><b>Project 2</b></h3>
+                        <p><b>Created by Enrico Banks, Himabindu Srinivas &amp; Sahitesh Reddypelly</b><br />
+
+                        <ul class="actions">
+                            <li><a href="#two" class="button scrolly">Visualization</a></li>
+                        </ul>
+                    </div>
+                </section>
+                
+        
+                <section id="two" class="main style2">
+                    <!-- <div class="container"> -->
+                            <div class="tab" style="color:black">
+                                    <button style="color:black" class="tablinks" onclick="openCity(event, 'Price')" id="defaultOpen">Average Price by Neighborhood</button>
+                                    <button class="tablinks" onclick="openCity(event, 'Host')"><a href="index3.html">Host listings in New York City</a></button>
+                                    <button class="tablinks">Youtube</button>
+                                    <button class="tablinks">Documentation</button>
+                            </div>    
+                    <!-- </div> -->
+                <div id="Price" class="tabcontent">
+                    <div class="container" id="d3Container">
+                            
+                        <div class="row 150%" id="visSpace">
+                            <!-- <div class="6u 12u$(medium)"> -->
+                                <!-- <div class="6u$ 12u$(medium)"> -->
+                                    <!-- <ul class="actions fit"> -->
+                                        <!-- <li> -->
+                                        <!-- <header class="major"> -->
+                                            <h2 id="exploreTitle"><strong>Explore New York Listings </strong> (Loading...)</h2>
+                                        <!-- </header> -->
+                                        <!-- </li> -->
+                                    <!-- </ul> -->
+                                <!-- </div> -->
+                            <!-- </div> -->
+    
+                        </div>
+                        
+                        </div>
+                        <div id="viz"><p style="color:black;font-size:46px; text-align: center;"><a href="index2.html">Tree Map</a></p></div>
+                </div>
+            <div id="Host" class="tabcontent">
+                <div id="viz1"></div>
+                <!-- <script src="https://d3plus.org/js/d3.js"></script>
+                <script src="https://d3plus.org/js/d3plus.js"></script> -->
+                <script>
+                    
+                    var visualization = d3plus.viz()
+                      .container("#viz1")
+                      .data("Book2.csv", {"filetype": "csv"})  // data to use with the visualization
+                      .type("tree_map")
+                      .id("host_name")
+                      .size("value")
+                      .color("value")
+                      .tooltip({"share": false},"value")   // list the keys to show in tooltip
+                      .draw()
+                  </script>
+            </div>
+            
+			
+                <script>
+                    // Get the element with id="defaultOpen" and click on it
+                    document.getElementById("defaultOpen").click();
+                </script>
+
+
+</section>
+<!-- **** -->
+
+<!-- BEGIN CODE FOR d3 AIRBNB INFORMATION VISUALIZATIONS *************************************** -->
+
+<style>
+
+    .rectangle {
+    	fill: #225ea8;
+    }
+    /*.rectangle:hover {
+    	fill: orange;
+    }*/
+
+    .tick text {
+        font: 22px helvetica;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      stroke-width: 0.7;
+      shape-rendering: crispEdges;
+    }
+
+    /* Legend Position Style */
+    .legend {
+    	position:absolute;
+    	left:20px;
+    	top:30px;
+    }
+
+    .axis text {
+    	font: 12px helvetica;
+        fill: black;
+    }
+
+    div.tooltip {
+      position: absolute;
+      text-align: center;
+      /*width: 150px;*/
+      height: 34px;
+      padding: 2px;
+      font-size: 14px;
+      background: steelblue;
+      border: 1px;
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+</style>
+
+
+<!-- Initialize the SVGs and white rectangles for all three visualizations -->
+<script type="text/javascript">
+
+    //Compute the proper dimensions for the 3 visualization spaces
+    var outer = window.innerWidth - parseInt(d3.select('#visSpace').style('width'), 10);
+    var margin = {top: 0, right: 0, bottom: 0, left: 0, outer: outer};
+    var csvgwidth = (window.innerWidth - margin.outer) / 1.5;
+    var gsvgwidth = (window.innerWidth - margin.outer) / 3;
+    var bsvgwidth = (window.innerWidth - margin.outer);
+    var height1 = csvgwidth * 1.1;
+    var height2 = bsvgwidth * 1.0;
+    //d3.select(window).on('resize.updatesvg', resizeAllsvgs);
+
+    //Choropleth
+    var cdiv = d3.select("div#d3Container")
+        .append("div")
+        .attr("id", "chor")
+        .classed("svg-container-left", true);
+    var csvg = cdiv.append("svg")
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 600 780")
+        .attr("id", "chor")
+        .classed("svg-content-responsive", true);
+    var crect = csvg.append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("rx", 8)
+        .attr("fill", "white");
+
+    //Graph (bar graph)
+    var gdiv = d3.select("div#d3Container")
+        .append("div")
+        .attr("id", "graph")
+        .classed("svg-container-right", true);
+    var gsvg = gdiv.append("svg")
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 600 780")
+        .attr("id", "graph")
+        .classed("svg-content-responsive", true);
+    gsvg.append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("rx", 15)
+        .attr("fill", "white");
+    // gg = gsvg.append("g").attr("transform", "translate(50,20)");
+    // gg.append("h2").text("BARCELONA");
+
+    //Bubble graph
+    var bdiv = d3.select("div#d3Container")
+        .append("div")
+        .attr("id", "bubble")
+        .classed("svg-container-full", true);
+    var bsvg = bdiv.append("svg")
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 600 780")
+        .attr("id", "bubble")
+        .classed("svg-content-responsive", true);
+    var brect = bsvg.append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("rx", 3)
+        .attr("fill", "white");
+
+</script>
+
+<!-- For the Choropleth Visualization -->
+<script type="text/javascript">
+
+  var csvg = d3.select("svg#chor");
+  var cdiv = d3.select("div#chor");
+
+  var ctooltipDiv = cdiv.append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+  var width = parseInt(cdiv.style('width'), 10);
+  var height = parseInt(cdiv.style('height'), 10);
+
+  var lowColor = '#edf8b1'
+  var highColor = '#253494'
+
+  // D3 Projection
+  var projection = d3.geoMercator()
+    // .center([29.6, 30.47])
+    .center([-73.95652770996094, 40.758700379161006])
+    .translate([width / 3 + 125, (height / 3 - 150)])
+    // .translate([width / 1.63, height / 2]) // translate to center of screen
+    .scale([60000])
+    .precision(0.1)
+    // .rotate([0, 0, -37.6]); // scale things down to see entire US
+
+  // Define path generator
+  var path = d3.geoPath() // path generator that will convert GeoJSON to SVG paths
+    .projection(projection); // tell path generator to use albersUsa projection
+
+
+  // Load in my states data
+  d3.csv("data/listings-min.csv", function(data) {
+	var neighbourhoodAvg = d3.nest()
+		.key(function(d) { return d.neighbourhood_cleansed; })
+		.rollup(function(v) { return d3.mean(v, function(d) {return d.price_log; }); })
+		.entries(data); //not sure what the variable needs to be here
+    var dataArray = [];
+	// console.log(neighbourhoodAvg);
+    for (var d = 0; d < neighbourhoodAvg.length; d++) {
+      dataArray.push(parseFloat(neighbourhoodAvg[d].value))
+    }
+
+    var minVal = d3.min(dataArray);
+    var maxVal = d3.max(dataArray);
+    var ramp = d3.scaleLinear().domain([minVal,maxVal-2.2]).range([lowColor,highColor])
+
+    // Load GeoJSON data and merge with states data
+    d3.json("data/neighbourhoods_ny.geojson", function(json) {
+      // Loop through each state data value in the .csv file
+	  console.log(json.features);
+      for (var i = 0; i < neighbourhoodAvg.length; i++) {
+
+        // Grab State Name
+        var dataNeighbourhood = neighbourhoodAvg[i].key;
+
+        // Grab data value
+        var dataValue = neighbourhoodAvg[i].value;
+
+        // Find the corresponding state inside the GeoJSON
+        for (var j = 0; j < json.features.length; j++) {
+          //var jsonNeighbourhood = json.features[j].properties.NTAName;
+		  var jsonNeighbourhood = json.features[j].properties.neighbourhoodAvg;
+          if (dataNeighbourhood == jsonNeighbourhood) {
+
+            // Copy the data value into the JSON
+            json.features[j].properties.value = dataValue;
+
+            // Stop looking through the JSON
+            break;
+          }
+        }
+      }
+	//   console.log(json);
+
+    var lastSelected;   //Used to reset a path once its color has been changed
+    var lastSelectedData;
+    var lastColor;
+
+    // Bind the data to the SVG and create one path per GeoJSON feature
+    csvg.selectAll("path")
+      .data(json.features)
+      .enter()
+      .append("path")
+      .attr("d", path)
+      .style("stroke", "#fff")
+      .style("stroke-width", "1")
+      .style("opacity", 0.8)
+      .style("fill", fillFn)
+			//Adding mouseevents
+			.on("mouseover", function(d) {
+				d3.select(this).transition().duration(250).style("opacity", 1)
+				ctooltipDiv.transition().duration(250)
+                .style("width", "" + (d.properties.neighbourhood.length * 2 + 25) + "")
+                // .style("width", "" + (d.properties.NTAName.length * 2 + 25) + "")
+				.style("opacity", 1);
+                var coordinates = d3.mouse(this);
+				ctooltipDiv.text(d.properties.neighbourhood)     //Add tooltip
+                // ctooltipDiv.text(d.properties.NTAName)              //Add tooltip
+				.style("left", coordinates[0] + "px") //(d3.event.pageX) + "px") 
+				.style("top", coordinates[1] + "px") //(d3.event.pageY / 3) - 30 + "px");
+			})
+			.on("mouseout", function() {
+				d3.select(this)
+				.transition().duration(250)
+				.style("opacity", 0.8);
+				ctooltipDiv.transition().duration(250)
+				.style("opacity", 0);
+			 })
+            .on("click", function(d) { 
+                if (lastSelected != null) {
+                    lastSelected.style("fill", lastColor);
+                    lastSelected.style("opacity", 0.8);
+                 }
+                lastSelected = d3.select(this);
+                lastSelectedData = d;
+                lastColor = fillFn(d);
+                d3.select(this)
+				.transition().duration(500)
+				.style("fill", "#2171b5");
+                d3.select("text#neighborhoodTitle")
+                .transition().duration(250)
+                .style("fill", "white").remove();
+                d3.select("g#neighborhoodTitle")
+                .transition().duration(250).remove();
+                console.log("Clicked! " + d.properties.neighbourhood);
+                presentGraph(d.properties.neighbourhood);
+                // console.log("Clicked! " + d.properties.NTAName);
+                // presentGraph(d.properties.NTAName);
+            });
+
+		function fillFn (d) {
+			var name = d.properties.neighbourhood;
+            // var name = d.properties.NTAName;
+			for (var x = 0; x < neighbourhoodAvg.length; x++) {
+				if (neighbourhoodAvg[x].key == name) {
+
+					return ramp(neighbourhoodAvg[x].value);
+				}
+			}
+		}
+
+
+
+// Add a legend
+var w = (width / 30), h = (height / 5);
+
+//THIS SHOULD BE AN SVG CONTAINER, NOT JUST AN SVG
+
+var key = csvg
+        .append("svg")
+        .attr("id", "legendRect")
+        .attr("width", w + 60)
+        .attr("height", h + 60)
+        .attr("class", "legend");
+
+    var legend = key.append("defs")
+      .append("svg:linearGradient")
+      .attr("id", "gradient")
+      .attr("x1", "100%")
+      .attr("y1", "0%")
+      .attr("x2", "100%")
+      .attr("y2", "100%")
+      .attr("spreadMethod", "pad");
+
+    legend.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", highColor)
+      .attr("stop-opacity", 1);
+
+    legend.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", lowColor)
+      .attr("stop-opacity", 1);
+
+    key.append("rect")
+      .attr("width", w)
+      .attr("height", h)
+      .style("fill", "url(#gradient)")
+      .attr("transform", "translate(30,32)");
+
+    var y = d3.scaleLinear()
+      .range([h, 0])
+      .domain([minVal, maxVal]);
+
+    var yAxis = d3.axisRight(y);
+
+    key.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + (40 + (width / 50)) + ",32)")
+      .call(yAxis)
+
+    d3.selectAll("path")
+          .attr("stroke", "darkGrey");
+
+
+    csvg.append("g").append("text")
+        .attr("id", "chorTitle")
+        .attr("x", width * 0.52-180)
+        .attr("y", (height / 16))
+        //.attr("text-align", "left")
+        .attr("text-anchor", "right")
+        .style("font-size", (width / 35)+10 + "px")
+        .style("font-weight", "bold")
+        .text("Average Listing Price by Neighborhood");
+
+    csvg.append("g")
+        .append("text")
+        .attr("id", "neighborhoodTitle")
+        .attr("x", width * 0.1+35)
+        .attr("y", (height-500))
+        //.attr("text-align", "left")
+        .attr("text-anchor", "right")
+        .style("font-size", (width / 30) + "px")
+        .style("font-weight", "light")
+        .style("font-weight", "bold")
+        .text("Select a Neighborhood"); 
+
+    });
+
+    d3.select("h2#exploreTitle").text("Explore New York Listings");
+
+});
+
+</script>
+
+
+<!-- For Bar Graph Visualization -->
+<script>
+
+var div = d3.select("div#graph");
+
+var fullWidth = parseInt(div.style('width'), 10);
+var fullHeight = parseInt(div.style('height'), 10);
+var mg = fullWidth / 8;
+var margin = {top: mg, left: mg, bottom: mg, right: 0};
+var width = fullWidth - margin.left - margin.right;
+var height = fullHeight - margin.top - margin.bottom;
+
+var titleHeight = 30;
+
+var svg = d3.select("svg#graph");
+var g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+g.append("text")
+    .attr("id", "graphTitle")
+    .attr("x",2)
+    .attr("y", (height / 24.5))
+    .style("font-size", (width / 20) + "px")
+    .style("font-weight", "bold")
+    .text("Price by Room Type");
+
+var tooltipDiv = div.append("div")
+    .attr("class", "tooltip")
+    .attr("id", "graphTooltip")
+    .style("opacity", 0);
+
+// div.append("div")
+//     .attr("id", "drop")
+//     .attr("fill", "grey")
+//     .attr("align", "center")
+//     .style("transform", "translateY(" + (height - 200) + "px)");
+
+// div.append("div").append("rectangle")
+//     .attr("id", "dropBackground")
+//     .attr("fill", "grey")
+//     .attr("width", width/2)
+//     .attr("height", 50)
+//     .style("transform", "translateY(" + (height - 200) + "px)");
+
+var neighborhoodSelected = "el Poble Sec";
+var ratingSelected = 1;
+var roomCounts = [];
+var prices = [65, 42, 109];
+var priceNames = ["Private Room", "Shared Room", "Entire House"];
+var DATA = [0, 1, 2, 3];
+
+
+function computePrices(data) {
+
+    var thePrices = [];
+
+        console.log("Rating is: " + ratingSelected);
+        console.log("Neighborhood Select: " + neighborhoodSelected);
+        filtered = data.filter(function(d) {
+            return d.neighbourhood_cleansed == neighborhoodSelected && (d.review_scores_rating / 20) >= ratingSelected;
+        });
+        //console.log("ALL MAX IS: " + MAX);
+        console.log("FILTERED LENGTH: " + filtered.length);
+        var privateRooms = filtered.filter(function(d) { return d.room_type == "Private room"; });
+        //console.log("Private rooms: " + privateRooms.length);
+        var privatePrice = d3.mean(privateRooms, function(d) { return parseInt(d.price.replace(/\$/g, '')); });
+        if (privatePrice == undefined) { privatePrice = 0; }
+        //console.log("Private Price: " + privatePrice);
+
+        var sharedRooms = filtered.filter(function(d) { return d.room_type == "Shared room"; });
+        //console.log("Shared: " + sharedRooms.length);
+        var sharedPrice = d3.mean(sharedRooms, function(d) { return parseInt(d.price.replace(/\$/g, '')); });
+        if (sharedPrice == undefined) { sharedPrice = 0; }
+        //console.log("Shared Price: " + sharedPrice);
+
+        var fullHouse = filtered.filter(function(d) { return d.room_type == "Entire home/apt"; });
+        //console.log("Entire home: " + fullHouse.length);
+        var fullPrice = d3.mean(fullHouse, function(d) { return parseInt(d.price.replace(/\$/g, '')); });
+        if (fullPrice == undefined) { fullPrice = 0; }
+        //console.log("Full Price: " + fullPrice);
+
+        roomCounts = [privateRooms.length, sharedRooms.length, fullHouse.length];
+        thePrices = [privatePrice, sharedPrice, fullPrice];
+
+        prices = thePrices.slice();
+
+    return thePrices.slice();
+}
+
+
+d3.csv("data/listings-min.csv", function(error, data) {
+
+    DATA = data;
+
+
+	var y = d3.scaleLinear()
+			.domain([0, d3.max(prices, function(d){
+				return +d;
+			})])
+			.range([height - 20, titleHeight + margin.top]);
+    console.log(y);
+
+    var x = d3.scaleBand()
+            .rangeRound([0, width + (3 * margin.left)-330])
+            .domain(priceNames.map(function(d) { return d; }));
+
+    var xPos = function(c) {
+        return (((2*c + 1) * (0.24 * width)) - (width /9))/1.8;
+    }
+
+    var xAxis = g.append("g")
+        .call(d3.axisBottom(x))
+        .attr("transform", "translate(0," + 580 + ")")
+        .selectAll("text")
+        .attr("y", 0)
+        .attr("x", -85)
+        .attr("dy", "0.35em")
+        .attr("transform", "rotate(-50)")
+        .attr("fill", "#353F39")
+        .attr("font-size", "12")
+        .style("text-anchor", "finish");
+
+
+	g.selectAll("rectangle")
+		.data(prices)
+		.enter()
+		.append("rect")
+        .attr("id", "graph")
+		.attr("class","rectangle")
+        .attr("id", "graph")
+        .attr("rx", 5)
+		.attr("width", width / 8)
+		.attr("height", function(d){
+			return 975 - y(+d);
+		})
+		.attr("x", function(d, i){
+			return xPos(i);
+		})
+		.attr("y", function(d){
+			return y(d)-400;
+		})
+        .style("opacity", 0.7)
+        //Adding mouseevents
+        .on("mouseover", function(d, i) {
+              d3.select(this).transition().duration(250).style("opacity", 1)
+              tooltipDiv.transition().duration(250)
+              .style("opacity", 1);
+            //   tooltipDiv
+            //   .style("left", d.x + "px")
+            //   .style("top", d.y + "px");
+              var coordinates = d3.mouse(this);
+              console.log(coordinates[0] + ", " + coordinates[1]);
+              tooltipDiv.text(function(d) {
+                  var rc = roomCounts[i];
+                  return rc + " Room" + (rc == 1 ? "" : "s");    //Add tooltip
+              })
+              .style("left", (coordinates[0] * 0.75) + "px") //coordinates[0] + "px") //(d3.event.pageX) + "px")
+              .style("top", (coordinates[1] * 0.75) + "px"); //(d3.event.pageY / 3) - 30 + "px");
+
+        })
+        .on("mouseout", function() {
+              d3.select(this)
+              .transition().duration(250)
+              .style("opacity", 0.7);
+              tooltipDiv.transition().duration(250)
+              .style("opacity", 0);
+          });
+
+
+    //Add bar labels
+    for (var i = 0; i < 3; i++) {
+        g.append("text")
+           .attr("id", "graph")
+      	   .attr("class","label")
+           .attr("x", xPos(i)+10)
+      	   .attr("y", function(d) { return y(d)-400; })
+      	   .attr("dy", ".75em")
+           .attr("fill", "white")
+           .style("font-size", 25)
+      	   .text("-");
+       }
+
+    var elements = ["0-365 days", "0-50 days", "51-100 days", "101-200 days", "201-300 days", "301-365 days"];
+
+    var selector = d3.select("#drop")
+        .append("select")
+        .attr("id","dropdown")
+        .attr("fill", "grey")
+        .on("change", function(d) {
+            //   availabilitySelected = parseInt(document.getElementById("dropdown").value);
+              availabilitySelected = document.getElementById("dropdown");
+              console.log("AVAILABILITY CHANGED      -   - - - - - " + availabilitySelected);
+              d3.select("text#ratingTitle")
+                .text(function() {
+                return "Availability Selected is " + availabilitySelected + " days";
+            })
+              presentGraph(neighborhoodSelected);
+         });
+
+    selector.selectAll("option")
+        .data(elements)
+        .enter().append("option")
+        .attr("value", function(d){
+            return d;
+        })
+        .text(function(d){
+            return d;
+        });
+
+});
+
+g.append("text")
+    .attr("id", "ratingTitle")
+    .attr("text-anchor", "left")
+    .style("transform", "translate(2px," + (height * 1.41) + "px)")// + height - 50 + ")");
+    .style("font-size", (width / 9) + "px")
+    .style("font-weight", "bold")
+    .text("Availability Selected is " + "0-365" + " days");
+
+
+var presentGraph = function(neighborhood) {
+
+    neighborhoodSelected = neighborhood;
+
+    computePrices(DATA);
+
+    console.log("------------------------------------------------------------");
+
+    var xPos = function(c) {
+        return ((2*c + 1) * (0.24 * width)) - (width /9);
+    }
+
+    var y = d3.scaleLinear()
+			.domain([0, d3.max(prices, function(d){
+				return +d;
+			})])
+            .range([height - 20, titleHeight + margin.top]);
+
+    g.selectAll("rect#graph")
+        .transition()
+        .attr("height", function(d, i){
+            var pr = prices[i];
+            return (975 - y(+pr))/1.8;
+        })
+        .attr("y", function(d, i){
+            var pr = prices[i];
+            return 255+(y(+pr)-400)/1.8 ;
+        })
+        .ease(d3.easeLinear);
+
+    g.selectAll("text#graph")
+        .transition()
+        //.duration(750)
+        .attr("y", function(d, i) {
+            var pr = parseInt(prices[i]);
+            var h = 550;
+            if (h == height - 20) { return h; }
+            return h;
+        })
+        // .attr("x", function(d, i) {
+        //     var pr = parseInt(prices[i]);
+        //     var subtraction = 0;
+        //     if (pr > 9) { subtraction = 7; }
+        //     if (pr > 99) { subtraction = 12.5 }
+        //     if (pr > 999) { subtraction = 18 }
+        //     if (pr == 0) { subtraction = -7.5; }
+        //     return xPos(i) + (width / 9) - 12.5 - subtraction;
+        // })
+        .text(function(d, i) {
+            var s = "$" + parseInt(prices[i]);
+            return s == "$0" ? "-" : s;
+        })
+        .ease(d3.easeLinear);
+
+}
+
+//Actually call the presentGraph function to populate the graph
+presentGraph(neighborhoodSelected);
+
+</script>
+
+
+<!-- For Bubble Graph Visualization -->
+<script>
+
+    d3.csv("data/listings-min.csv", function(error, data){
+        var toIgnore = ["apartment", "a", "at", "the", "to", "and", "of", "with", "near", "for", "in", "on", "el", "y", "de", "en", "con", "piso", "doble", "ramblas", "la", "room", "habitaciin"];
+
+        //create a dictionary of the unique word:count pairs
+        var dict = {};
+        var total = 0;
+        data.forEach(function(d) {
+            var s = d.name;
+            var split = s.split(" ");
+            for (var i = 0; i < split.length; i++) {
+                var word = split[i].toLowerCase();
+                if (toIgnore.indexOf(word) == -1) {     //If the word is NOT in toIgnore
+                    if (word in dict) {
+                        dict[word] = dict[word] + 1;
+                    } else if ((/^[a-zA-Z()]+$/.test(word))) {
+                        //if the word doesn't contain symbols
+                        dict[word] = 1;
+                    }
+                }
+            }
+            total++;
+        });
+
+        //filter and format data for bubble chart
+        var newData = [];
+        for (var x in dict) {
+            if (dict[x] > 900) {
+                newData.push({word: x, count: dict[x]});
+            }
+        }
+        tabulate(total, {children: newData});
+    });
+
+    var tabulate = function(total, data) {
+        var diameter = parseInt(d3.select('div.svg-container-full').style('width'), 10) ;
+
+        // var color = d3.scaleOrdinal(d3.schemeCategory20c); //color category
+        // var lowColor = '#edf8b1'
+        // var highColor = '#1d91c0'
+        //var color = d3.scale.category20b();
+        var color = d3.scaleLinear().domain([250,3500]).range([lowColor,highColor])
+        var bubble = d3.pack()
+            .size([diameter, diameter])
+            .padding(1.5);
+
+
+        bsvg.style("transform", "translate(0,50)")
+            .attr("class", "bubble");
+
+
+        var tooltipDiv = bdiv.append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        var root = d3.hierarchy(data)
+            .sum(function(d) { return d.count; })
+            .sort(function(a, b) {return b.count - a.count; });
+
+        //add g elements to svg for each entry
+        bubble(root);
+        var node = bsvg.selectAll(".node")
+            .data(root.children)
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            });
+
+        //append bubble onto each g element
+        node.append("circle")
+            .attr("r", function(d){ return d.r; })
+            .style("fill", function(d) { console.log("DATA COUNT: " + d.data.count); return color(d.data.count); });
+
+        //add text to bubbles
+        node.append("text")
+            .attr("dy", ".3em")
+            .style("text-anchor", "middle")
+            .style("font-size", "15px")
+            // .style("font-color", "white")
+            // .style("font-weight", "bold")
+            .style("fill", "white")
+            .text(function(d) { return d.data.word; });
+
+
+        bsvg.append("g")
+            .append("text")
+            .attr("id", "keywordTitle")
+            .style("transform", "translate(17px,25px)")
+            .attr("text-anchor", "right")
+            .style("font-size", (width / 30) + "px")
+            .style("font-weight", "bold")
+            .text("Popular Listing Keywords");
+
+        bsvg.selectAll("circle")
+            .on("mouseover", function(d) {
+                tooltipDiv.transition()
+                    .duration(200)
+                    .style("opacity", 1);
+                var width = parseInt(bdiv.style('width'), 10);
+                var height = parseInt(bdiv.style('height'), 10);
+                tooltipDiv.html(Math.floor((d.data.count / total) * 100) + "% of listings")
+                    //.style("left", coordinates[0] + "px")
+                    //.style("top", coordinates[1] + "px");
+                    .style("left", (d.x * width / 100) + "px")
+                    .style("top", (d.y * height2 / 650) + "px"); //- (d.r / 2) + "px");
+            })
+            .on("mouseout", function(d) {
+                tooltipDiv.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+    }
+
+</script>
+            
+	</body>
+</html>

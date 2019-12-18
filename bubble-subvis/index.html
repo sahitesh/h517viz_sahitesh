@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<style>
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        width: 60px;
+        height: 28px;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+</style>
+<script src="../assets/js/d3.min.js"></script>
+<script>
+d3.csv("../data/listings-min.csv", function(error, data){
+    var toIgnore = ["apartment", "a", "at", "the", "to", "and", "of", "with", "near", "for", "in", "on", "y", "en", "bcn", "de", "el", "con", "piso"];
+
+    //create a dictionary of the unique word:count pairs
+    var dict = {};
+    var total = 0;
+    data.forEach(function(d) {
+        var s = d.name;
+        var split = s.split(" ");
+        for (var i = 0; i < split.length; i++) {
+            var word = split[i].toLowerCase();
+            if (toIgnore.indexOf(word) == -1) {
+                if (word in dict ) {
+                    dict[word] = dict[word] + 1;
+                } else if ((/^[a-zA-Z()]+$/.test(word))) {
+                    //if the word doesn't contain symbols
+                    dict[word] = 1;
+                }
+            }
+        }
+        total++;
+    });
+
+    //filter and format data for bubble chart
+    var newData = [];
+    for (var x in dict) {
+        if (dict[x] > 300) {
+            newData.push({word: x, count: dict[x]});
+        }
+    }
+    tabulate(total, {children: newData});
+});
+
+var tabulate = function(total, data) {
+    var diameter = 940; //max size of the bubbles
+    var color = d3.scaleOrdinal(d3.schemeCategory20c); //color category
+
+    var bubble = d3.pack()
+        .size([diameter, diameter])
+        .padding(1.5);
+
+    var svg = d3.select("body")
+        .append("svg")
+        .attr("width", diameter)
+        .attr("height", diameter)
+        .attr("class", "bubble");
+
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    var root = d3.hierarchy(data)
+        .sum(function(d) { return d.count; })
+        .sort(function(a, b) {return b.count - a.count; });
+
+    //add g elements to svg for each entry
+    bubble(root);
+    var node = svg.selectAll(".node")
+        .data(root.children)
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) {
+            return "translate(" + d.x + "," + d.y + ")";
+        });
+
+    //append bubble onto each g element
+    node.append("circle")
+        .attr("r", function(d){ return d.r; })
+        .style("fill", function(d) { return color(d.data.word); });
+
+    //add text to bubbles
+    node.append("text")
+        .attr("dy", ".3em")
+        .style("text-anchor", "middle")
+        .text(function(d) { return d.data.word; });
+
+    svg.selectAll("circle")
+        .on("mouseover", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div.html(Math.floor((d.data.count / total) * 100) + "% <br> of listings")
+                .style("left", d.x + "px")
+                .style("top", d.y - d.r + "px");
+            })
+        .on("mouseout", function(d) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
+}
+</script>
