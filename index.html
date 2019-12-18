@@ -133,7 +133,7 @@
 <style>
 
     .rectangle {
-    	fill: #225ea8;
+    	fill: #7f0000;
     }
     /*.rectangle:hover {
     	fill: orange;
@@ -339,12 +339,14 @@
 				ctooltipDiv.transition().duration(250)
                 .style("width", "" + (d.properties.neighbourhood.length * 2 + 25) + "")
                 // .style("width", "" + (d.properties.NTAName.length * 2 + 25) + "")
-				.style("opacity", 1);
+				.style("opacity", 1)
+                ;
                 var coordinates = d3.mouse(this);
-				ctooltipDiv.text(d.properties.neighbourhood)     //Add tooltip
+				ctooltipDiv.text(d.properties.neighbourhood)            //Add tooltip
                 // ctooltipDiv.text(d.properties.NTAName)              //Add tooltip
 				.style("left", coordinates[0] + "px") //(d3.event.pageX) + "px") 
-				.style("top", coordinates[1] + "px") //(d3.event.pageY / 3) - 30 + "px");
+				.style("top", coordinates[1] + "px")
+                //(d3.event.pageY / 3) - 30 + "px");
 			})
 			.on("mouseout", function() {
 				d3.select(this)
@@ -362,13 +364,13 @@
                 lastSelectedData = d;
                 lastColor = fillFn(d);
                 d3.select(this)
-				.transition().duration(500)
-				.style("fill", "#2171b5");
+				.transition().duration(20)
+				.style("fill", "#67000d");
                 d3.select("text#neighborhoodTitle")
-                .transition().duration(250)
+                .transition().duration(20)
                 .style("fill", "white").remove();
                 d3.select("g#neighborhoodTitle")
-                .transition().duration(250).remove();
+                .transition().duration(20).remove();
                 console.log("Clicked! " + d.properties.neighbourhood);
                 presentGraph(d.properties.neighbourhood);
                 // console.log("Clicked! " + d.properties.NTAName);
@@ -449,6 +451,8 @@ var key = csvg
         .style("font-size", (width / 35)+10 + "px")
         .style("font-weight", "bold")
         .text("Average Listing Price by Neighborhood");
+    
+    neighborhood_text_color = '#d7301f'
 
     csvg.append("g")
         .append("text")
@@ -460,7 +464,70 @@ var key = csvg
         .style("font-size", (width / 30) + "px")
         .style("font-weight", "light")
         .style("font-weight", "bold")
-        .text("Select a Neighborhood"); 
+        .text("Select a Neighborhood");
+
+    csvg.append("g")
+        .append("text")
+        .attr("x", width * 0.1+190)
+        .attr("y", (height-630))
+        // .attr("transform", "rotate(-50)")
+        //.attr("text-align", "left")
+        .attr("text-anchor", "right")
+        .style("font-size", (width / 30) + "px")
+        // .style("font-weight", "dark")
+        .style("font-weight", "bold")
+        .style("fill",neighborhood_text_color)
+        .text("Manhattan");
+    csvg.append("g")
+        .append("text")
+        .attr("x", width * 0.1+250)
+        .attr("y", (height-450))
+        // .attr("transform", "rotate(-50)")
+        //.attr("text-align", "left")
+        .attr("text-anchor", "right")
+        .style("font-size", (width / 30) + "px")
+        // .style("font-weight", "dark")
+        .style("font-weight", "bold")
+        .style("fill",neighborhood_text_color)
+        .text("Brooklyn"); 
+    csvg.append("g")
+        .append("text")
+        .attr("x", width * 0.1+380)
+        .attr("y", (height-550))
+        // .attr("transform", "rotate(-50)")
+        //.attr("text-align", "left")
+        .attr("text-anchor", "right")
+        .style("font-size", (width / 30) + "px")
+        // .style("font-weight", "dark")
+        .style("font-weight", "bold")
+        .style("fill",neighborhood_text_color)
+        .text("Queens");
+
+    csvg.append("g")
+        .append("text")
+        .attr("x", width * 0.1+40)
+        .attr("y", (height-270))
+        // .attr("transform", "rotate(-50)")
+        //.attr("text-align", "left")
+        .attr("text-anchor", "right")
+        .style("font-size", (width / 30) + "px")
+        // .style("font-weight", "dark")
+        .style("font-weight", "bold")
+        .style("fill",neighborhood_text_color)
+        .text("Staten Island");
+
+    csvg.append("g")
+        .append("text")
+        .attr("x", width * 0.1+320)
+        .attr("y", (height-750))
+        // .attr("transform", "rotate(-50)")
+        //.attr("text-align", "left")
+        .attr("text-anchor", "right")
+        .style("font-size", (width / 30) + "px")
+        // .style("font-weight", "dark")
+        .style("font-weight", "bold")
+        .style("fill",neighborhood_text_color)
+        .text("Bronx");
 
     });
 
@@ -492,7 +559,7 @@ var g = svg.append("g")
 g.append("text")
     .attr("id", "graphTitle")
     .attr("x",2)
-    .attr("y", (height / 24.5))
+    .attr("y", (height / 24.5)-60)
     .style("font-size", (width / 20) + "px")
     .style("font-weight", "bold")
     .text("Price by Room Type");
@@ -615,8 +682,8 @@ d3.csv("data/listings-min.csv", function(error, data) {
         .style("opacity", 0.7)
         //Adding mouseevents
         .on("mouseover", function(d, i) {
-              d3.select(this).transition().duration(250).style("opacity", 1)
-              tooltipDiv.transition().duration(250)
+              d3.select(this).transition().duration(20).style("opacity", 1)
+              tooltipDiv.transition().duration(20)
               .style("opacity", 1);
             //   tooltipDiv
             //   .style("left", d.x + "px")
@@ -633,9 +700,9 @@ d3.csv("data/listings-min.csv", function(error, data) {
         })
         .on("mouseout", function() {
               d3.select(this)
-              .transition().duration(250)
+              .transition().duration(20)
               .style("opacity", 0.7);
-              tooltipDiv.transition().duration(250)
+              tooltipDiv.transition().duration(20)
               .style("opacity", 0);
           });
 
@@ -782,7 +849,7 @@ presentGraph(neighborhoodSelected);
         //filter and format data for bubble chart
         var newData = [];
         for (var x in dict) {
-            if (dict[x] > 900) {
+            if (dict[x] > 250) {
                 newData.push({word: x, count: dict[x]});
             }
         }
@@ -790,11 +857,11 @@ presentGraph(neighborhoodSelected);
     });
 
     var tabulate = function(total, data) {
-        var diameter = parseInt(d3.select('div.svg-container-full').style('width'), 10) ;
+        var diameter = parseInt(d3.select('div.svg-container-full').style('width'), 10.2) ;
 
         // var color = d3.scaleOrdinal(d3.schemeCategory20c); //color category
-        // var lowColor = '#edf8b1'
-        // var highColor = '#1d91c0'
+        var lowColor = '#7fcdbb'
+        var highColor = '#253494'
         //var color = d3.scale.category20b();
         var color = d3.scaleLinear().domain([250,3500]).range([lowColor,highColor])
         var bubble = d3.pack()
@@ -853,15 +920,18 @@ presentGraph(neighborhoodSelected);
         bsvg.selectAll("circle")
             .on("mouseover", function(d) {
                 tooltipDiv.transition()
-                    .duration(200)
+                    .duration(30)
                     .style("opacity", 1);
                 var width = parseInt(bdiv.style('width'), 10);
                 var height = parseInt(bdiv.style('height'), 10);
                 tooltipDiv.html(Math.floor((d.data.count / total) * 100) + "% of listings")
-                    //.style("left", coordinates[0] + "px")
-                    //.style("top", coordinates[1] + "px");
-                    .style("left", (d.x * width / 100) + "px")
-                    .style("top", (d.y * height2 / 650) + "px"); //- (d.r / 2) + "px");
+                    // .attr("x", d.x)
+                    // .attr("y", d.y)
+                    // .style("left", coordinates[0] + "px")
+                    // .style("top", coordinates[1] + "px");
+                    .style("left", (d.x * width / 1000) + "px")
+                    .style("top", (d.y * height2/650 )-600 + "px");
+                    // console.log(d.x) //- (d.r / 2) + "px");
             })
             .on("mouseout", function(d) {
                 tooltipDiv.transition()
